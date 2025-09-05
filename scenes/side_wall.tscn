@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://cqpjfpnm7t8i5"]
+
+[ext_resource type="Texture2D" uid="uid://gd4s4p73pg71" path="res://art/sidewall.png" id="1_7sine"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mwn3a"]
+size = Vector2(120.966, 1354.01)
+
+[node name="SideWall" type="Sprite2D"]
+texture = ExtResource("1_7sine")
+centered = false
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(61.3133, 675.555)
+shape = SubResource("RectangleShape2D_mwn3a")

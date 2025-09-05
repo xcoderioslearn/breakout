@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://c4agowjwmxbxl"]
+
+[ext_resource type="Texture2D" uid="uid://cv42ssiargf3j" path="res://art/color6.png" id="1_uigpi"]
+[ext_resource type="Script" uid="uid://berbb6gnm1yqg" path="res://script/area_2d.gd" id="2_s7f2b"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_q2kla"]
+size = Vector2(125.965, 43.9453)
+
+[node name="Color6Bricks" type="Sprite2D"]
+texture = ExtResource("1_uigpi")
+centered = false
+
+[node name="Area2D" type="Area2D" parent="."]
+script = ExtResource("2_s7f2b")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(63, 21.95)
+shape = SubResource("RectangleShape2D_q2kla")
+debug_color = Color(0.49501, 0.578274, 0.210925, 0.42)
