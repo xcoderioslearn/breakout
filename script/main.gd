@@ -1,6 +1,5 @@
 extends Node2D
 
-# Brick scenes (root = Sprite2D, child = Area2D)
 var brick_scenes := [
 	preload("res://scenes/color_6_bricks.tscn"),
 	preload("res://scenes/color_5_bricks.tscn"),
@@ -15,7 +14,7 @@ const TOP_WALL := preload("res://scenes/top_wall.tscn")
 const PLATFORM_SCENE := preload("res://scenes/platform.tscn")
 const BALL_SCENE := preload("res://scenes/ball.tscn")
 
-const BRICKS_PER_ROW := 5
+const BRICKS_PER_ROW := 18
 const BRICK_HEIGHT := 44
 
 var left_wall : Sprite2D
@@ -69,12 +68,13 @@ func _spawn_bricks():
 
 			add_child(brick)
 			bricks.append(brick)
+			brick.add_to_group("bricks")
 
 func _spawn_platform_and_ball():
 	var viewport_size = get_viewport_rect().size
 
 	platform = PLATFORM_SCENE.instantiate() as Sprite2D
-	platform.position.x = viewport_size.x / 2 - platform.texture.get_width()/2
+	platform.position.x = viewport_size.x / 2 - platform.texture.get_width() / 2
 	platform.position.y = viewport_size.y - platform.texture.get_height() - 10
 	platform.left_wall = left_wall
 	platform.right_wall = right_wall

@@ -28,6 +28,7 @@ func _physics_process(delta):
 	else:
 		move_and_slide()
 		_bounce_off_walls_and_platform(ball_sprite)
+		_check_brick_collisions(ball_sprite)
 
 func _set_position_on_platform():
 	var ball_sprite = get_node("Sprite2D") as Sprite2D
@@ -39,7 +40,6 @@ func _set_position_on_platform():
 func _bounce_off_walls_and_platform(ball_sprite):
 	var viewport_size = get_viewport_rect().size
 
-	# Left/right walls
 	if position.x < left_wall.texture.get_width():
 		position.x = left_wall.texture.get_width()
 		velocity.x = -velocity.x
@@ -47,12 +47,10 @@ func _bounce_off_walls_and_platform(ball_sprite):
 		position.x = viewport_size.x - right_wall.texture.get_width() - ball_sprite.texture.get_width()
 		velocity.x = -velocity.x
 
-	# Top wall
 	if position.y < top_wall.texture.get_height():
 		position.y = top_wall.texture.get_height()
 		velocity.y = -velocity.y
 
-	# Platform
 	var plat_rect = Rect2(platform.position, platform.texture.get_size())
 	var ball_rect = Rect2(position, ball_sprite.texture.get_size())
 	if plat_rect.intersects(ball_rect) and velocity.y > 0:
@@ -61,5 +59,19 @@ func _bounce_off_walls_and_platform(ball_sprite):
 		var rel = (hit_pos / platform.texture.get_width()) - 0.5
 		velocity.x = rel * speed * 2
 
-func on_brick_hit():
-	velocity.y = -velocity.y
+
+func _check_brick_collisions(ball_sprite):
+	var ball_rect = Rect2(position, ball_sprite.texture.get_size())
+
+	for brick in get_tree().get_nodes_in_group("bricks"):
+		var brick_rect = Rect2(brick.position, brick.texture.get_size())
+		if ball_rect.intersects(brick_rect):
+			if abs(velocity.x) > abs(velocity.y):
+				velocity.x = -velocity.x
+			else:
+				velocity.y = -velocity.y
+
+
+			brick.queue_free()
+			brick.remove_from_group("bricks")
+			return 
