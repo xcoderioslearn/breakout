@@ -21,3 +21,14 @@ window/size/viewport_width=2560
 window/size/viewport_height=1440
 window/stretch/mode="canvas_items"
 window/vsync/vsync_mode=2
+
+[layer_names]
+
+2d_render/layer_1="Ball"
+2d_render/layer_2="Bricks"
+2d_render/layer_3="Platform"
+2d_render/layer_4="Walls"
+2d_physics/layer_1="Ball"
+2d_physics/layer_2="Bricks"
+2d_physics/layer_3="Platform"
+2d_physics/layer_4="Walls"

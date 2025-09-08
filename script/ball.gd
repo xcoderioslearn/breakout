@@ -1,77 +1,69 @@
-extends CharacterBody2D
+extends RigidBody2D
 
 @export var speed := 600
 
-var platform : Sprite2D
-var left_wall : Sprite2D
-var right_wall : Sprite2D
-var top_wall : Sprite2D
-
+var platform : CharacterBody2D
 var launched := false
 
+signal brick_destroyed(row_index: int)
+signal ball_lost
+signal top_wall_hit
+
 func _ready():
+	sleeping = true
+	gravity_scale = 0.0
+	contact_monitor = true
+	max_contacts_reported = 1
 	add_to_group("ball")
-	if platform:
-		_set_position_on_platform()
+	body_entered.connect(_on_body_entered)
 
-func _physics_process(delta):
-	if not platform or not left_wall or not right_wall or not top_wall:
-		return
-
-	var ball_sprite = get_node("Sprite2D") as Sprite2D
-
+func _physics_process(_delta):
 	if not launched:
 		_set_position_on_platform()
 		if Input.is_action_just_pressed("ui_select"):
 			launched = true
-			velocity = Vector2(0, -speed)
-	else:
-		move_and_slide()
-		_bounce_off_walls_and_platform(ball_sprite)
-		_check_brick_collisions(ball_sprite)
+			sleeping = false
+			linear_velocity = Vector2(0, -speed)
+
+	_check_ball_out_of_bounds()
 
 func _set_position_on_platform():
-	var ball_sprite = get_node("Sprite2D") as Sprite2D
-	position = Vector2(
-		platform.position.x + platform.texture.get_width()/2 - ball_sprite.texture.get_width()/2,
-		platform.position.y - ball_sprite.texture.get_height()
-	)
+	if platform:
+		var ball_sprite = get_node("Sprite2D")
+		var plat_sprite = platform.get_node("Sprite2D")
+		position = Vector2(
+			platform.position.x,
+			platform.position.y - plat_sprite.texture.get_height()/2 - ball_sprite.texture.get_height()/2
+		)
 
-func _bounce_off_walls_and_platform(ball_sprite):
+func _check_ball_out_of_bounds():
 	var viewport_size = get_viewport_rect().size
+	if position.y > viewport_size.y:
+		emit_signal("ball_lost")
 
-	if position.x < left_wall.texture.get_width():
-		position.x = left_wall.texture.get_width()
-		velocity.x = -velocity.x
-	elif position.x + ball_sprite.texture.get_width() > viewport_size.x - right_wall.texture.get_width():
-		position.x = viewport_size.x - right_wall.texture.get_width() - ball_sprite.texture.get_width()
-		velocity.x = -velocity.x
+func reset_ball(plat: CharacterBody2D):
+	platform = plat
+	launched = false
+	sleeping = true
+	linear_velocity = Vector2.ZERO
+	_set_position_on_platform()
 
-	if position.y < top_wall.texture.get_height():
-		position.y = top_wall.texture.get_height()
-		velocity.y = -velocity.y
+func increase_speed():
+	speed += 100
+	if launched:
+		linear_velocity = linear_velocity.normalized() * speed
 
-	var plat_rect = Rect2(platform.position, platform.texture.get_size())
-	var ball_rect = Rect2(position, ball_sprite.texture.get_size())
-	if plat_rect.intersects(ball_rect) and velocity.y > 0:
-		velocity.y = -abs(velocity.y)
-		var hit_pos = (position.x + ball_sprite.texture.get_width()/2) - platform.position.x
-		var rel = (hit_pos / platform.texture.get_width()) - 0.5
-		velocity.x = rel * speed * 2
+func _on_body_entered(body: Node):
+	if body.is_in_group("bricks"):
+		var row_index = body.get_meta("row_index") if body.has_meta("row_index") else 0
+		body.queue_free()
+		emit_signal("brick_destroyed", row_index)
 
+	if body == platform:
+		var plat_sprite = platform.get_node("Sprite2D")
+		var hit_pos = (position.x - platform.position.x) / (plat_sprite.texture.get_width()/2)
+		linear_velocity.x = hit_pos * speed
+		linear_velocity = linear_velocity.normalized() * speed
 
-func _check_brick_collisions(ball_sprite):
-	var ball_rect = Rect2(position, ball_sprite.texture.get_size())
-
-	for brick in get_tree().get_nodes_in_group("bricks"):
-		var brick_rect = Rect2(brick.position, brick.texture.get_size())
-		if ball_rect.intersects(brick_rect):
-			if abs(velocity.x) > abs(velocity.y):
-				velocity.x = -velocity.x
-			else:
-				velocity.y = -velocity.y
-
-
-			brick.queue_free()
-			brick.remove_from_group("bricks")
-			return 
+	if body.name == "TopWall":
+		emit_signal("top_wall_hit")

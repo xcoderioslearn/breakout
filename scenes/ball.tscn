@@ -1,18 +1,20 @@
-[gd_scene load_steps=4 format=3 uid="uid://c3qmox8xhsy40"]
+[gd_scene load_steps=5 format=3 uid="uid://c3qmox8xhsy40"]
 
 [ext_resource type="Texture2D" uid="uid://dlpixk08g0rnh" path="res://art/ball.png" id="1_7s4qf"]
 [ext_resource type="Script" uid="uid://c2c3mxf4u874m" path="res://script/ball.gd" id="1_cxlvu"]
+[ext_resource type="PhysicsMaterial" uid="uid://kiwt6tgja8ci" path="res://physic_material.tres" id="1_f7cbr"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_o5qli"]
-size = Vector2(28, 28)
+size = Vector2(28.1333, 28.1593)
 
-[node name="Ball" type="CharacterBody2D"]
+[node name="Ball" type="RigidBody2D"]
+collision_mask = 14
+physics_material_override = ExtResource("1_f7cbr")
+gravity_scale = 0.0
 script = ExtResource("1_cxlvu")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_7s4qf")
-centered = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(14, 14)
 shape = SubResource("RectangleShape2D_o5qli")
